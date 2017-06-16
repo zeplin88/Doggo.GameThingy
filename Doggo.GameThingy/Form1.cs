@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
+using Doggo.GameThingy.Objects;
 
 namespace Doggo.GameThingy
 {
     public partial class Form1 : Form
     {
         Timer timer = new Timer();
-        int x = 50;
-        int y = 50;
+        List<IVisualObject> gameObjects = new List<IVisualObject>();
+
         public Form1()
         {
             InitializeComponent();
@@ -16,6 +19,7 @@ namespace Doggo.GameThingy
 
         public void GameLoop()
         {
+            InitGameObjects();
             while(Created)
             {
                 timer.Reset();
@@ -26,29 +30,37 @@ namespace Doggo.GameThingy
             }
         }
 
+        private void InitGameObjects()
+        {
+            string[] lines = System.IO.File.ReadAllLines(@"C:\Users\tomjan\Source\Repos\Doggo.GameThingy\Doggo.GameThingy\Map.txt");
+            Height = lines.Length * 20 + 40;
+            Width = 220;
+
+            for (int r = 0; r < lines.Length; r++)
+            {
+                for (int c = 0; c < lines[r].Length; c++)
+                {
+                    if (lines[r].Substring(c, 1) == "x") gameObjects.Add(new Wall(c * 20, r * 20));
+                    if (lines[r].Substring(c, 1) == "o")
+                    {
+                        Player p = new Player(c * 20, r * 20);
+                        KeyDown += new KeyEventHandler(p.PlayerMove);
+                        gameObjects.Add(p);
+                    }
+                }
+            }
+        }
+
         private void RenderScene()
         {
             Graphics graphics = CreateGraphics();
             graphics.Clear(Color.White);
-            Rectangle rectangle = new Rectangle(x, y, 50, 50);
-            graphics.DrawRectangle(Pens.Red, rectangle);
+            foreach (IVisualObject obj in gameObjects) obj.Draw(graphics);
         }
 
         private void GameLogic()
         {
-            //throw new NotImplementedException();
-        }
-
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Up)
-                y -= 10;
-            else if (e.KeyCode == Keys.Right)
-                x += 10;
-            else if (e.KeyCode == Keys.Down)
-                y += 10;
-            else if (e.KeyCode == Keys.Left)
-                x -= 10;
+            
         }
     }
 }
