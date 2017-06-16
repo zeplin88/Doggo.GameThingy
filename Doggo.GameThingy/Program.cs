@@ -16,7 +16,9 @@ namespace Doggo.GameThingy
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Form1 myForm = new Form1();
+            myForm.Show();
+            myForm.GameLoop();
         }
     }
 }
